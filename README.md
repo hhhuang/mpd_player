@@ -12,24 +12,38 @@ Technical information about the music recommendation is available [here](https:/
 * A collection of audio files that is manipulated by an MPD server. [More information of the setup of the MPD server](https://wiki.archlinux.org/index.php/Music_Player_Daemon).   
 * For training yourself own personalized knowledge base, 
   download and build the [Open Knowledge Embedding](https://github.com/thunlp/OpenKE) toolkit in the folder ```kb/openke```. C++ is required to build OpenKE.
-    ``` cd kb
-        git clone https://github.com/thunlp/OpenKE.git openke
-        cd openke
-        sh make.sh```
+  ``` cd kb
+  git clone https://github.com/thunlp/OpenKE.git openke
+  cd openke
+  sh make.sh
+  ```
 
 ## Setup
-1. Install related packages
 
-    ```pip3 install -r requirements.txt```
+### Install related packages
 
-2. Start the player
+```pip3 install -r requirements.txt```
 
-    ```python3 mpd_player_gui.py```
+### Start the player
 
-3. Assign the MPD music server. The server can also be set up manually in the file ```config.json``` as follows.
+```python3 mpd_player_gui.py```
+  
+A failure message will be shown if the default MPD setting does not work.
+  
+![Failure](https://github.com/hhhuang/mpd_player/blob/master/misc/fail.png?raw=true)
 
-    ```{"host": "192.168.0.1", "port": 6600}```
+### Assign the MPD music server and restart the player
 
-4. Rebuild the library for your music collection
+![Configuration](https://github.com/hhhuang/mpd_player/blob/master/misc/setting.png?raw=true)
 
-5. Play an album.
+The server can also be set up manually in the file ```config.json``` as follows.
+
+```{"host": "192.168.0.1", "port": 6600, "volume": 100}```
+
+### Rebuild the library for your music collection
+It takes some time depending on the size of your music collection.
+
+### Play an album
+![GUI](https://github.com/hhhuang/mpd_player/blob/master/misc/player_gui.png?raw=true)
+
+
