@@ -20,10 +20,10 @@ Technical information about the music recommendation is available [here](https:/
 
 ## Setup
 1. Install related packages
-```pip3 install -r requirements.txt
+```pip3 install -r requirements.txt```
 
 2. Start the player
-```python3 mpd_player_gui.py
+```python3 mpd_player_gui.py```
 
 3. Assign the MPD music server
 
