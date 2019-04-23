@@ -4,7 +4,7 @@ This is an audiophile music player based on the [MPD](https://www.musicpd.org) p
 The player will suggest the relevant albums and artists to the user based the playback log. 
 A knowledge base built on the top of [All Music Guide](https://www.allmusic.com) is employed to peformance the recommendation as a task of knowledge base completion. 
 
-Technical information about the music recommendation is available [here](https://github.com/hhhuang/mpd_player/misc/paper.pdf) (Submitted to the demo track of IJCAI 2019).
+Technical information about the music recommendation is available [here](https://github.com/hhhuang/mpd_player/blob/master/misc/paper.pdf) (submitted to the demo track of IJCAI 2019).
 
 ## Environment Requirement
 * Python3
