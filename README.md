@@ -12,10 +12,11 @@ Technical information about the music recommendation is available [here](https:/
 * A collection of audio files that is manipulated by an MPD server. [More information of the setup of the MPD server](https://wiki.archlinux.org/index.php/Music_Player_Daemon).   
 * For training yourself own personalized knowledge base, 
   download and build the [Open Knowledge Embedding](https://github.com/thunlp/OpenKE) toolkit in the folder ```kb/openke```. C++ is required to build OpenKE.
-    ``` cd kb
-        git clone https://github.com/thunlp/OpenKE.git openke
-        cd openke
-        sh make.sh```
+  ``` cd kb
+  git clone https://github.com/thunlp/OpenKE.git openke
+  cd openke
+  sh make.sh
+  ```
 
 ## Setup
 
@@ -37,7 +38,7 @@ A failure message will be shown if the default MPD setting does not work.
 
 The server can also be set up manually in the file ```config.json``` as follows.
 
-```{"host": "192.168.0.1", "port": 6600}```
+```{"host": "192.168.0.1", "port": 6600, "volume": 100}```
 
 ### Rebuild the library for your music collection
 It takes some time depending on the size of your music collection.
