@@ -14,9 +14,14 @@ def get_str_hash(s):
     hash_obj = hashlib.sha1(s.encode('utf8'))
     return hash_obj.hexdigest()
 
-def open_url(url):
+
+def fix_link(url):
     if url[0] == '/':
-        url = "https://www.allmusic.com" + url
+        return "https://www.allmusic.com" + url
+    return url
+
+def open_url(url):
+    url = fix_link(url)
     cache_path = os.path.join(os.path.dirname(__file__), 'cache', get_str_hash(url))
     if os.path.isfile(cache_path):
         print("Open cached file")
@@ -52,6 +57,7 @@ def extract_basic_info(url):
     if not find_class(soup, 'h1', 'artist-name'):
         return None
     data['name'] = find_class(soup, 'h1', 'artist-name').text.strip()
+    data['link'] = fix_link(url)
     fields = ['active-dates', 'birth']
     for field in fields:
         if not find_class(soup, 'div', field):
@@ -62,32 +68,32 @@ def extract_basic_info(url):
     data['styles'] = []
     if find_class(soup, 'div', 'styles'):
         for style in find_class(soup, 'div', 'styles').find_all('div')[0].find_all('a'):
-            data['styles'].append((style.get('href'), style.text.strip()))
+            data['styles'].append((fix_link(style.get('href')), style.text.strip()))
 
     data['genre'] = []
     if find_class(soup, 'div', 'genre'):
         for genre in find_class(soup, 'div', 'genre').find_all('div')[0].find_all('a'):
-            data['genre'].append((genre.get('href'), genre.text.strip()))
+            data['genre'].append((fix_link(genre.get('href')), genre.text.strip()))
 
     data['group_members'] = []
     if find_class(soup, 'div', 'group-members'):
         for member in find_class(soup, 'div', 'group-members').find_all('div')[0].find_all('a'):
-            data['group_members'].append((member.get('href'), member.text.strip()))
+            data['group_members'].append((fix_link(member.get('href')), member.text.strip()))
 
     data['member_of'] = []
     if find_class(soup, 'div', 'member-of'):
         for member in find_class(soup, 'div', 'member-of').find_all('div')[0].find_all('a'):
-            data['member_of'].append((member.get('href'), member.text.strip()))
+            data['member_of'].append((fix_link(member.get('href')), member.text.strip()))
 
     data['moods'] = []
     if find_class(soup, 'section', 'moods'):
         for mood in find_class(soup, 'section', 'moods').find_all('a'):
-            data['moods'].append((mood.get('href'), mood.text.strip()))
+            data['moods'].append((fix_link(mood.get('href')), mood.text.strip()))
 
     data['themes'] = []
     if find_class(soup, 'section', 'themes'):
         for mood in find_class(soup, 'section', 'themes').find_all('a'):
-            data['themes'].append((mood.get('href'), mood.text.strip()))
+            data['themes'].append((fix_link(mood.get('href')), mood.text.strip()))
     return data
 
 
@@ -100,7 +106,7 @@ def crawl_related(url):
         data[section.split(" ")[1]] = []
         if find_class(soup, 'section', section):
             for a in find_class(soup, 'section', section).find_all('a'):
-                data[section.split(" ")[1]].append((a.get('href'), a.text.strip()))
+                data[section.split(" ")[1]].append((fix_link(a.get('href')), a.text.strip()))
     return data
 
 def crawl_albums(url):
@@ -117,7 +123,7 @@ def crawl_albums(url):
             album['cover_link'] = find_class(row, 'td', 'cover').find_all('img')[0].get('data-original')
         except:
             album['cover_link'] = None
-        album['link'] = find_class(row, 'td', 'title').find_all('a')[0].get('href')
+        album['link'] = fix_link(find_class(row, 'td', 'title').find_all('a')[0].get('href'))
         album['year'] = find_class(row, 'td', 'year').text.strip()
         album['title'] = find_class(row, 'td', 'title').text.strip()
         album['label'] = find_class(row, 'td', 'label').text.strip()
