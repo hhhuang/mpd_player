@@ -1,6 +1,6 @@
 import hashlib
 import json
-import os.path
+import os
 import random
 import re
 import requests
@@ -17,7 +17,7 @@ def get_str_hash(s):
 def open_url(url):
     if url[0] == '/':
         url = "https://www.allmusic.com" + url
-    cache_path = 'cache/' + get_str_hash(url)
+    cache_path = os.path.join(os.path.dirname(__file__), 'cache', get_str_hash(url))
     if os.path.isfile(cache_path):
         print("Open cached file")
         with open(cache_path, encoding='utf8') as fin:
@@ -134,7 +134,7 @@ def crawl_artist(base_url):
     return artist
    
 def crawl_all():
-    fout = open("artists.jsons", "w")
+    fout = open(os.path.join(os.path.dirname(__file__), "data", "artists.jsons"), "w")
     #root = 'https://www.allmusic.com/artist/the-velvet-underground-mn0000840402'
     #root = 'https://www.allmusic.com/artist/the-velvet-underground-mn0000840402'
     #root = 'https://www.allmusic.com/artist/bing-crosby-mn0000094252'
