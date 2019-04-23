@@ -12,7 +12,8 @@ Technical information about the music recommendation is available [here](https:/
 * A collection of audio files that is manipulated by an MPD server. [More information of the setup of the MPD server](https://wiki.archlinux.org/index.php/Music_Player_Daemon).   
 * For training yourself own personalized knowledge base, 
   build the [Open Knowledge Embedding](https://github.com/thunlp/OpenKE) toolkit in the folder ```kb/OpenKE```. C++ is required to build OpenKE.
-  ``` cd kb/OpenKE
+  ```
+  cd kb/OpenKE
   sh make.sh
   ```
 
