@@ -1,4 +1,6 @@
 import json
+import os
+
 import numpy
 
 entity_embeddings = []
@@ -10,7 +12,7 @@ def predict(h, t, r):
 def load_embeddings():
     global entity_embeddings 
     global relation_embeddings
-    with open("data/embedding.vec.json") as fin:
+    with open(os.path.join(os.path.dirname(__file__), "data", "embedding.vec.json")) as fin:
         data = json.load(fin)
         entity_embeddings = data['ent_embeddings']
         relation_embeddings = data['rel_embeddings']
@@ -21,7 +23,7 @@ def evaluate(num_options):
     load_embeddings()
     correct = 0
     mrr = 0
-    with open("data/test_bought_album.txt") as fin:
+    with open(os.path.join(os.path.dirname(__file__), "data", "test_bought_album.txt")) as fin:
         cnt = 0
         scores = []
         for line in fin:
@@ -47,7 +49,7 @@ def evaluate(num_options):
 
 def load_entity_table():
     entities = {}
-    with open("data/entity2id.txt") as fin:
+    with open(os.path.join(os.path.dirname(__file__), "data", "entity2id.txt")) as fin:
         for line in fin:
             row = line.strip().split()
             if len(row) == 2:
@@ -66,8 +68,7 @@ def top_list(entity_type):
                 numpy.array(relation_embeddings[10]))
             data.append((score, e_name))
     data.sort()
-    return data[:100]
-
+    return data
 
 if __name__ == "__main__":
     evaluate(50)

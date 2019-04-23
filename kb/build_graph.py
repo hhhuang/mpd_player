@@ -9,7 +9,7 @@ entities = []
 track_table = {}
 
 def get_indexes(text):
-    return [t for t in text.lower().split() if t != 'the']
+    return set([t for t in text.lower().split() if t != 'the'])
 
 class Entity:
     def __init__(self, name, entity_type):
