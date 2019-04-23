@@ -21,16 +21,16 @@ Technical information about the music recommendation is available [here](https:/
 ## Setup
 1. Install related packages
 
-```pip3 install -r requirements.txt```
+    ```pip3 install -r requirements.txt```
 
 2. Start the player
 
-```python3 mpd_player_gui.py```
+    ```python3 mpd_player_gui.py```
 
 3. Assign the MPD music server. The server can also be set up manually in the file ```config.json``` as follows.
 
-```{"host": "192.168.0.1", "port": 6600}```
+    ```{"host": "192.168.0.1", "port": 6600}```
 
 4. Rebuild the library for your music collection
 
-5. Play music!
+5. Play an album.
