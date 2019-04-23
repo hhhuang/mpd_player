@@ -11,10 +11,9 @@ Technical information about the music recommendation is available [here](https:/
 * Operating system: Windows/Mac/Linux and so on. The code has been verified on Windows 10 and Mac OS Mojave.
 * A collection of audio files that is manipulated by an MPD server. [More information of the setup of the MPD server](https://wiki.archlinux.org/index.php/Music_Player_Daemon).   
 * For training yourself own personalized knowledge base, 
-  download and build the [Open Knowledge Embedding](https://github.com/thunlp/OpenKE) toolkit in the folder ```kb/openke```. C++ is required to build OpenKE.
-  ``` cd kb
-  git clone https://github.com/thunlp/OpenKE.git openke
-  cd openke
+  build the [Open Knowledge Embedding](https://github.com/thunlp/OpenKE) toolkit in the folder ```kb/OpenKE```. C++ is required to build OpenKE.
+  ```
+  cd kb/OpenKE
   sh make.sh
   ```
 

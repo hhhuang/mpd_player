@@ -10,6 +10,22 @@ from PyQt5.QtCore import *
 from mpd_client import * 
 from libs.background_task import run_async, run_async_mutex, run_loop, remove_threads
 
+def createRecommendationGrid():
+    """'time': '291', 'artist': 'Yvonne Lefebure', 'title': 'Le Tombeau de Couperin - Forlane', 'track': '3', 'disc': '0', """
+    # Create table
+    table = QTableWidget()
+    table.setRowCount(0)
+    table.setColumnCount(5)
+    table.setHorizontalHeaderLabels(["Disc", "Track", "Title", "Artist", "Length"])
+    header = table.horizontalHeader()
+    header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+    header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+    header.setSectionResizeMode(2, QHeaderView.Stretch)
+    header.setSectionResizeMode(3, QHeaderView.Stretch)
+    header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
+    return table
+
+
 def createTrackTable():
     """'time': '291', 'artist': 'Yvonne Lefebure', 'title': 'Le Tombeau de Couperin - Forlane', 'track': '3', 'disc': '0', """
     # Create table
@@ -136,12 +152,16 @@ class ConfigPopup(QDialog):
         
         self.host_label = QLabel("Host: ", self)
         self.host_input = QLineEdit(main.config['host'], self)
-        self.host_input.setMaximumWidth(200)
+        self.host_input.setMaximumWidth(300)
 
         self.port_label = QLabel("Port: ", self)
         self.port_input = QLineEdit(str(main.config['port']), self)
-        self.port_input.setMaximumWidth(200)
+        self.port_input.setMaximumWidth(300)
         
+        self.volume_label = QLabel("Default Volume: ", self)
+        self.volume_input = QLineEdit(str(main.config['volume']), self)
+        self.volume_input.setMaximumWidth(300)
+
         self.cancel_button = QPushButton('Cancel', self)
         self.cancel_button.clicked.connect(self.cancel_on_click)
                 
@@ -153,8 +173,10 @@ class ConfigPopup(QDialog):
         self.layout.addWidget(self.host_input, 0, 1)
         self.layout.addWidget(self.port_label, 1, 0)
         self.layout.addWidget(self.port_input, 1, 1)
-        self.layout.addWidget(self.cancel_button, 2, 0)
-        self.layout.addWidget(self.ok_button, 2, 1)
+        self.layout.addWidget(self.volume_label, 2, 0)
+        self.layout.addWidget(self.volume_input, 2, 1)
+        self.layout.addWidget(self.cancel_button, 3, 0)
+        self.layout.addWidget(self.ok_button, 3, 1)
         
         self.setLayout(self.layout) 
         self.show()
@@ -167,6 +189,7 @@ class ConfigPopup(QDialog):
     def ok_on_click(self):
         self.main.config['host'] = self.host_input.text().strip()
         self.main.config['port'] = int(self.port_input.text().strip())
+        self.main.config['volume'] = int(self.volume_input.text().strip())
         self.main.save_config()
         self.main.initMPD()
         self.close()
@@ -251,7 +274,8 @@ class App(QWidget):
             self.initMPD()
             run_async(self.initData, self.initLibrary)
         except:
-            self.popup_configuration()
+            self.loading_widget.setText("Fail to load the music library.\nCheck the setting of your MPD server in the Options menu and restart this player.")
+            #self.popup_configuration()
         
     def __del__(self):
         self.mpd_server.close()
@@ -262,7 +286,7 @@ class App(QWidget):
             with open("config.json") as fin:
                 self.config = json.load(fin)            
         except:
-            self.config = {'host': 'localhost', 'port': 6600}
+            self.config = {'host': 'localhost', 'port': 6600, 'volume': 100}
             
     def save_config(self):
         with open("config.json", "w") as fout:
@@ -278,11 +302,13 @@ class App(QWidget):
         self.music_lib = Library(self.mpd_client_player, update=False)
         self.playqueue = AsyncPlayQueue(self.mpd_client_playqueue, self.mpd_mutex)
         self.player = Player(self.mpd_client_player)
+        self.player.setvol(self.config['volume'])
         self.monitor = AsyncPlayer(self.mpd_client_monitor, None)
     
     def initData(self, results=None):
         self.updateAlbumTable(self.music_lib.list_latest_albums(10000000))  
         self.updatePlaylist()
+        self.updateRecommendation()
 #        self.playing_time = 0
 #        self.playing = False
         
@@ -331,8 +357,8 @@ class App(QWidget):
         self.createAlbumTable()
         self.playlist = createTrackTable()
         self.playlist.clicked.connect(self.playlist_on_click)            
-        self.renderLayout()
-                
+        self.renderLayout()                
+        
     def renderLayout(self):
         self.layout = QVBoxLayout()
         self.layout.setMenuBar(self.menuBar)
@@ -353,9 +379,12 @@ class App(QWidget):
         self.stacked_tab.addWidget(self.loading_widget)
         self.stacked_tab.addWidget(self.albumTable)
                 
+        self.recommendation = createRecommendationGrid()
+                
         self.tabs = QTabWidget()
         self.tabs.addTab(self.stacked_tab, "Albums")
         self.tabs.addTab(self.playlist, "Playlist")
+        self.tabs.addTab(self.recommendation, "Recommendation")
         
         self.layout.addWidget(self.tabs) 
         self.layout.addWidget(self.statusBar)
@@ -393,14 +422,16 @@ class App(QWidget):
         self.search_box = QLineEdit("", self)
         self.search_box.setMaximumWidth(120)
         self.search_box.returnPressed.connect(self.search_box_entered)
+        self.search_box.textChanged.connect(self.search_button_reset)
         self.search_button = QPushButton('Search', self)
         self.search_button.clicked.connect(self.search_on_click)
                 
-        self.volume_slider = QSlider(Qt.Vertical, self)
-        self.volume_slider.setMaximumWidth(16)
-        self.volume_slider.setMaximumHeight(24)
+        self.volume_slider = QSlider(Qt.Horizontal, self)
+        self.volume_slider.setMaximumWidth(32)
+        #self.volume_slider.setMaximumHeight(24)
         self.volume_slider.setMinimum(0)            
-        self.volume_slider.setMaximum(100)           
+        self.volume_slider.setMaximum(100) 
+        self.volume_slider.setToolTip("Volume")
         self.volume_slider.sliderMoved.connect(self.volume_change)
         
         layout = QHBoxLayout()
@@ -455,6 +486,7 @@ class App(QWidget):
             self.playlist.setRangeSelected(QTableWidgetSelectionRange(0, 0, self.playlist.rowCount() - 1, self.playlist.columnCount() - 1), False)
             self.playlist.setRangeSelected(QTableWidgetSelectionRange(int(track['pos']), 0, int(track['pos']), self.playlist.columnCount() - 1), True)
             self.volume_slider.setValue(int(status['volume']))
+            self.volume_slider.setToolTip("Volume: " + status['volume'])
         else:
             self.infobox.setText("")
             self.time_info.setText("")
@@ -468,6 +500,7 @@ class App(QWidget):
     @pyqtSlot()
     def volume_change(self):
         self.player.setvol(self.volume_slider.value())
+        self.volume_slider.setToolTip("Volume: " + str(self.volume_slider.value()))
             
     @pyqtSlot()
     def play_on_click(self):
@@ -508,7 +541,11 @@ class App(QWidget):
         self.stacked_tab.setCurrentIndex(0)
         run_async_mutex(self.mpd_mutex, post_process, call_rebuild)
         
-    
+    @pyqtSlot()
+    def search_button_reset(self):
+        if self.search_button.text() == 'Clean':
+            self.search_button.setText('Search')
+
     def search(self):
         if self.search_button.text() == 'Clean':
             query = ""
@@ -556,6 +593,9 @@ class App(QWidget):
 #        self.albumTable.doubleClicked.connect(self.item_on_double_click)
 #        self.playlist.clicked.connect(self.item_on_click)           
        
+        
+    def updateRecommendation(self):
+        return
         
     def createAlbumTable(self):
         # Create table
