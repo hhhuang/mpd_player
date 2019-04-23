@@ -3,7 +3,7 @@ import sys
 import tensorflow as tf
 import numpy as np
 
-sys.path.append("openke")
+sys.path.append("OpenKE")
 
 import config
 import models
