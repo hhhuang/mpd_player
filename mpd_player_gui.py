@@ -238,15 +238,20 @@ class TableItem(QTableWidgetItem):
 class App(QWidget): 
     def __init__(self):
         super().__init__()
-        self.load_config()
-        self.title = 'MPD Controller'
+        self.title = 'MPD Player with Expert Knowledge-based Music Recommendation'
         self.left = 0
         self.top = 0
         self.width = 1024
         self.height = 768
-        self.initUI()
-        run_async(self.initData, self.initMPD)
         self.log_file = "log.txt"
+
+        self.initUI()
+        self.load_config()
+        try:
+            self.initMPD()
+            run_async(self.initData, self.initLibrary)
+        except:
+            self.popup_configuration()
         
     def __del__(self):
         self.mpd_server.close()
@@ -257,23 +262,24 @@ class App(QWidget):
             with open("config.json") as fin:
                 self.config = json.load(fin)            
         except:
-            self.config = {'host': '192.168.11.235', 'port': 6601}
+            self.config = {'host': 'localhost', 'port': 6600}
             
     def save_config(self):
         with open("config.json", "w") as fout:
             json.dump(self.config, fout)
         
     def initMPD(self):
-        self.mpd_mutex = QMutex()
         self.mpd_client_playqueue = connect_server(self.config['host'], self.config['port'])
         self.mpd_client_player = connect_server(self.config['host'], self.config['port'])
         self.mpd_client_monitor = connect_server(self.config['host'], self.config['port'])
-        
+    
+    def initLibrary(self):
+        self.mpd_mutex = QMutex()
         self.music_lib = Library(self.mpd_client_player, update=False)
         self.playqueue = AsyncPlayQueue(self.mpd_client_playqueue, self.mpd_mutex)
         self.player = Player(self.mpd_client_player)
         self.monitor = AsyncPlayer(self.mpd_client_monitor, None)
-        
+    
     def initData(self, results=None):
         self.updateAlbumTable(self.music_lib.list_latest_albums(10000000))  
         self.updatePlaylist()
@@ -317,6 +323,7 @@ class App(QWidget):
         
     def initUI(self):
         self.setWindowTitle(self.title)
+        self.setWindowIcon(QIcon(os.path.join(os.path.dirname(__file__), 'misc', 'icon.png')))
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.statusBar = QStatusBar(self)
         self.createMenuBar()

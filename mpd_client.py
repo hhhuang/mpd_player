@@ -7,9 +7,6 @@ import heapq
 from libs.collation import latin2ascii
 #from os import environ
 
-#environ['MPD_HOST'] = '192.168.11.235'
-#environ['MPD_PORT'] = '6601'
-
 def connect_server(host='localhost', port=6600):
     client = musicpd.MPDClient()       # create client object
     client.connect(host, port)                   # use MPD_HOST/MPD_PORT if set else
@@ -248,7 +245,7 @@ def show_album(album):
         print("%2d:%3d - %s %s" % (track['disc'], track['track'], track['title'], track['artist']))
 
 if __name__ == "__main__":
-    client = connect_server('192.168.11.235', 6601)
+    client = connect_server('localhost', 6600)
     music_lib = Library(client, update=False)
     pq = PlayQueue(client)
     player = Player(client)
