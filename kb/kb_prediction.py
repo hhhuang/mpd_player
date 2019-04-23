@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 import numpy
 
@@ -47,30 +48,57 @@ def evaluate(num_options):
         print("Accuracy: %f" % (correct / (cnt / num_options)), end="\t")
         print("MRR: %f" % (mrr / (cnt / num_options)))
 
-def load_entity_table():
-    entities = {}
-    with open(os.path.join(os.path.dirname(__file__), "data", "entity2id.txt")) as fin:
+def load_id_table(path):
+    table = {}
+    with open(path) as fin:
         for line in fin:
             row = line.strip().split()
             if len(row) == 2:
-                entities[int(row[1])] = row[0]
-    return entities
+                table[int(row[1])] = row[0]
+    return table
+
+def load_entity_table():
+    return load_id_table(os.path.join(os.path.dirname(__file__), "data", "entity2id.txt"))
+
+def load_relation_table():
+    return load_id_table(os.path.join(os.path.dirname(__file__), "data", "relation2id.txt"))
 
 def top_list(entity_type):
     entities = load_entity_table()
+    relations = load_relation_table()
+    for idx, rel in relations.items():
+        if rel == 'bought':
+            target_rel_id = idx
+            break
+    else:
+        print("No target relation is found.")
+        quit()
+    for idx, ent in entities.items():
+        if ent == 'User_(user)':
+            target_ent_id = idx
+            break
+    else:
+        print("No user entity is found")
+        quit()
     load_embeddings()
     data = []
     for eid, e_name in entities.items():
-        if e_name.endswith("(%s)" % entity_type):
+        try:
+            e_type = re.search("www\.allmusic\.com\/([^\/]+)\/", e_name).group(1)
+        except:
+            continue
+        if e_type == entity_type:
             score = predict(
                 numpy.array(entity_embeddings[eid]), 
-                numpy.array(entity_embeddings[382]), 
-                numpy.array(relation_embeddings[10]))
+                numpy.array(entity_embeddings[target_ent_id]), 
+                numpy.array(relation_embeddings[target_rel_id]))
             data.append((score, e_name))
     data.sort()
     return data
 
 if __name__ == "__main__":
+    print(top_list("artist")[:50])
+    quit()
     evaluate(50)
     #print(top_list("album"))
 
