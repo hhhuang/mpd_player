@@ -63,6 +63,13 @@ def load_entity_table():
 def load_relation_table():
     return load_id_table(os.path.join(os.path.dirname(__file__), "data", "relation2id.txt"))
 
+def recover_link(entity_name):
+    """Recover the entity link given the entity name"""
+    pos = entity_name.rfind("_(")
+    if pos > 0:
+        return entity_name[:pos]
+    return entity_name
+
 def top_list(entity_type):
     entities = load_entity_table()
     relations = load_relation_table()
@@ -92,7 +99,7 @@ def top_list(entity_type):
                 numpy.array(entity_embeddings[eid]), 
                 numpy.array(entity_embeddings[target_ent_id]), 
                 numpy.array(relation_embeddings[target_rel_id]))
-            data.append((score, e_name))
+            data.append((score, recover_link(e_name)))
     data.sort()
     return data
 

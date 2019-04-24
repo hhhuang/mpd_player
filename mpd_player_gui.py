@@ -10,21 +10,49 @@ from PyQt5.QtCore import *
 from mpd_client import * 
 from libs.background_task import run_async, run_async_mutex, run_loop, remove_threads
 
+from kb.kb_prediction import top_list
+from kb.database import load_albums
+
 def createRecommendationGrid():
+    albums = load_albums()
+    print("%d albums are loaded" % len(albums))
+    items = top_list("album")[:120]
     """'time': '291', 'artist': 'Yvonne Lefebure', 'title': 'Le Tombeau de Couperin - Forlane', 'track': '3', 'disc': '0', """
+    """{'label': 'Apple Records / Capitol', 'title': 'Please Please Me', 'link': 'https://www.allmusic.com/album/please-please-me-mw0000649873', 'cover_link': 'https://rovimusic.rovicorp.com/image.jpg?c=OwSNJB4u0Jyfc9oEcOWWtFWnbEN5fCjifro6xhIBuB4=&f=4', 'rating': 'rating-allmusic-9', 'year': '1963'}"""
     # Create table
     table = QTableWidget()
-    table.setRowCount(0)
-    table.setColumnCount(5)
-    table.setHorizontalHeaderLabels(["Disc", "Track", "Title", "Artist", "Length"])
-    header = table.horizontalHeader()
-    header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
-    header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
-    header.setSectionResizeMode(2, QHeaderView.Stretch)
-    header.setSectionResizeMode(3, QHeaderView.Stretch)
-    header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
-    return table
+    table.setShowGrid(False)
+    table.horizontalHeader().hide()
+    table.verticalHeader().hide()
+    table.setRowCount((len(items) + 2) // 3)
+    table.setColumnCount(8)
+    table.setColumnWidth(0, 150)
+    table.setColumnWidth(1, 150)
+    table.setColumnWidth(2, 15)
+    table.setColumnWidth(3, 150)
+    table.setColumnWidth(4, 150)
+    table.setColumnWidth(5, 15)
+    table.setColumnWidth(6, 150)
+    table.setColumnWidth(7, 150)
 
+    for idx, (score, album_link) in enumerate(items):
+        if album_link not in albums:
+            print(album_link + " is not found")
+            continue
+        data = albums[album_link]
+        info = TableItem("%s\nBy %s\n%s, %s\nAMG Rating: %s" % (
+            data['title'], data['artist'], data['label'], data['year'], data['rating']))
+        info.setData(Qt.UserRole, album_link)
+        row = idx // 3
+        col = (idx % 3) * 3
+        table.setItem(row, col, TableItem(str(score)))
+        table.setItem(row, col + 1, info) 
+        if col == 0:
+            table.setRowHeight(row, 150)
+            table.setItem(row, 2, TableItem(""))
+            table.setItem(row, 5, TableItem(""))
+    table.move(0,0)
+    return table
 
 def createTrackTable():
     """'time': '291', 'artist': 'Yvonne Lefebure', 'title': 'Le Tombeau de Couperin - Forlane', 'track': '3', 'disc': '0', """
