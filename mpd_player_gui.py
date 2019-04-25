@@ -4,14 +4,14 @@ import os
 import sys
 
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtCore import *
  
 from mpd_client import * 
 from libs.background_task import run_async, run_async_mutex, run_loop, remove_threads
 
 from kb.kb_prediction import top_list
-from kb.database import load_albums
+from kb.database import load_albums, get_cover_path
 
 def createRecommendationGrid():
     albums = load_albums()
@@ -40,12 +40,16 @@ def createRecommendationGrid():
             print(album_link + " is not found")
             continue
         data = albums[album_link]
+        img = QPixmap(get_cover_path(album_link, data['cover_link']))
+        cover_item = TableItem("")
+        cover_item.setData(Qt.DecorationRole, img.scaled(135, 135, Qt.KeepAspectRatio))
+
         info = TableItem("%s\nBy %s\n%s, %s\nAMG Rating: %s" % (
             data['title'], data['artist'], data['label'], data['year'], data['rating']))
         info.setData(Qt.UserRole, album_link)
         row = idx // 3
         col = (idx % 3) * 3
-        table.setItem(row, col, TableItem(str(score)))
+        table.setItem(row, col, cover_item)
         table.setItem(row, col + 1, info) 
         if col == 0:
             table.setRowHeight(row, 150)

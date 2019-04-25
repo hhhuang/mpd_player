@@ -1,5 +1,40 @@
 import json
 import os
+import random
+import re
+import time
+
+import requests
+import shutil
+
+def get_cover_filename(link):
+    m = re.search("www\.allmusic\.com\/(.+)$", link)
+    if m:
+        return m.group(1).replace("/", "-") + ".jpg"
+    raise ValueError
+
+def download_cover(link, cover_link):
+    if not cover_link:
+        return None 
+    filename = get_cover_filename(link)
+    cover_path = os.path.join(os.path.dirname(__file__), 'covers', filename)
+    if os.path.isfile(cover_path):
+        return cover_path
+    time.sleep(random.randint(1, 5))
+    user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'  
+    headers = { 'User-Agent' : user_agent }  
+    res = requests.get(cover_link, headers=headers, stream=True, verify=False)
+    if res.status_code == 200:
+        with open(cover_path, "wb") as fout:
+            shutil.copyfileobj(res.raw, fout)
+        return cover_path
+    return None
+
+def get_cover_path(link, cover_link):
+    path = download_cover(link, cover_link)
+    if not path:
+        path = os.path.join(os.path.dirname(__file__), 'covers', 'default.png')
+    return path
 
 def load_albums():
     albums = {}
