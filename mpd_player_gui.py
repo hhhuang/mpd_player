@@ -601,7 +601,7 @@ class App(QWidget):
         
     def updateRecommendation(self, collection):
         table = self.recommendation
-        items = get_recommendation_list(collection, 120)["albums"]
+        items = get_recommendation_list(collection, 120)["album"]
      
         table.setRowCount((len(items) + 2) // 3)
         for idx, data in enumerate(items):
@@ -612,7 +612,7 @@ class App(QWidget):
 
             info = TableItem("%s\nBy %s\n%s, %s\nAMG Rating: %s" % (
                 data['title'], data['artist'], data['label'], data['year'], data['rating']))
-            info.setData(Qt.UserRole, album_link)
+            info.setData(Qt.UserRole, data["link"])
             row = idx // 3
             col = (idx % 3) * 3
             table.setItem(row, col, cover_item)
