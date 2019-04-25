@@ -5,6 +5,7 @@ The player will suggest the relevant albums and artists to the user based the pl
 A knowledge base built on the top of [All Music Guide](https://www.allmusic.com) is employed to peformance the recommendation as a task of knowledge base completion. 
 
 Technical information about the music recommendation is available [here](https://github.com/hhhuang/mpd_player/blob/master/misc/paper.pdf) (submitted to the demo track of IJCAI 2019).
+The slides are [here](https://github.com/hhhuang/mpd_player/blob/master/misc/slides.pdf).
 
 ## Environment Requirement
 * Python3
