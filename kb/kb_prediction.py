@@ -105,16 +105,42 @@ def top_list(entity_type):
     data.sort()
     return data
 
+def lcs(str1, str2):
+    str1 = list(str1)
+    str2 = list(str2)
+    table = {}
+    for i in range(len(str1)+1):
+        for j in range(len(str2)+1):
+            score = 0
+            if i == 0 or j == 0:
+                table[(i, j)] = 0
+            else:
+                if str1[i-1] == str2[j-1]:
+                    table[(i, j)] = 1 + table[(i - 1, j - 1)]
+                else:
+                    table[(i, j)] = max(table[(i-1, j)], table[(i, j-1)])
+    return float(table[(len(str1), len(str2))]) / min(len(str1), len(str2))
+    
+def search_collection(collection, data):
+    for album in collection:
+        if lcs(data["title"].lower(), album.title.lower()) >= 0.85 and lcs(data["artist"].lower(), album.artist.lower()) >= 0.85:
+            return True
+    return False
+
 def get_recommendation_list(collection, num_items):
     results = {"album": []}
     albums = database.load_albums()
-    for _, album_link in top_list("album")[:num_items]:
+    for _, album_link in top_list("album"):
         if album_link not in albums:
             print(album_link + " is not found")
             continue
         data = albums[album_link]
+        if search_collection(collection, data):
+            continue
         data['cover_path'] = database.get_cover_path(album_link, data['cover_link'])
         results['album'].append(data)
+        if len(results['album']) >= num_items:
+            break
     return results
 
 if __name__ == "__main__":
