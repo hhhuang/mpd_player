@@ -4,6 +4,8 @@ import re
 
 import numpy
 
+import kb.database
+
 entity_embeddings = []
 relation_embeddings = []
 
@@ -102,6 +104,17 @@ def top_list(entity_type):
             data.append((score, recover_link(e_name)))
     data.sort()
     return data
+
+def get_recommendation_list(collection, num_items):
+    results = {"album": []}
+    albums = database.all_albums()
+    for _, album_link in top_list("album"):
+        if album_link not in albums:
+            print(album_link + " is not found")
+            continue
+        data = albums[album_link]
+        data['cover_path'] = database.get_cover_path(album_link, data['cover_link'])
+    return albums
 
 if __name__ == "__main__":
     print(top_list("artist")[:50])
