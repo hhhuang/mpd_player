@@ -58,6 +58,10 @@ def extract_basic_info(url):
         return None
     data['name'] = find_class(soup, 'h1', 'artist-name').text.strip()
     data['link'] = fix_link(url)
+    try:
+        data['portrait_link'] = find_class(soup, 'div', 'artist-image').find_all('img')[0].get('src')
+    except:
+        data['portrait_link'] = None 
     fields = ['active-dates', 'birth']
     for field in fields:
         if not find_class(soup, 'div', field):
