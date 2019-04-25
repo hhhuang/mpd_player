@@ -46,3 +46,8 @@ It takes some time depending on the size of your music collection.
 ![GUI](https://github.com/hhhuang/mpd_player/blob/master/misc/player_gui.png?raw=true)
 
 
+## Recommendation
+Based on your music collection and your playback log, a personalized recommendation list of albums to purchase is predicted.
+![Recommendation](https://github.com/hhhuang/mpd_player/blob/master/misc/recommendation.png?raw=true)
+
+
