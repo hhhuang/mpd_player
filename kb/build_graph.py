@@ -1,15 +1,37 @@
 from collections import defaultdict, Counter
 import json
 import os
+import re
 
 import knowledge_embedding
 
 inv_idx = defaultdict(list)
 entities = []
 track_table = {}
+entity_table = {}
+
+def get_entity_name(all_music_url):
+    """https://www.allmusic.com/artist/the-beatles-mn0000754032_(artist)"""
+    if all_music_url.startswith("http"):
+        m = re.search("\/([^\/]+)-[^-]+$", all_music_url)
+        if not m:
+            m = re.search("\/([^\/]+)$", all_music_url)
+        if m:
+            return m.group(1).replace("-", " ")
+    return None
 
 def get_indexes(text):
+    name = get_entity_name(text)
+    if name:
+        text = name 
     return set([t for t in text.lower().split() if t != 'the'])
+
+def get_or_create_entity(name, entity_type):
+    if (name, entity_type) in entity_table:
+        return entities[entity_table[(name, entity_type)]]
+    entities.append(Entity(name, entity_type))
+    entity_table[(name, entity_type)] = len(entities) - 1
+    return entities[-1]
 
 class Entity:
     def __init__(self, name, entity_type):
@@ -47,18 +69,18 @@ def load_allmusic():
             if not data or 'name' not in data:
                 print("skip")
                 continue
-            artist = Entity(data['name'], 'artist')
+            artist = get_or_create_entity(data['link'], 'artist')
             for entry in data['albums']:
-                album = Entity(entry['title'], 'album')
+                album = get_or_create_entity(entry['link'], 'album')
                 artist.add_relation(album, 'albums')
             for relation in ['influencers', 'followers', 'collaboratorwith', 'group_members', 'associatedwith', 'similars', 'themes', 'moods', 'styles', 'genre']:
                 for entry in data[relation]:
                     if relation in ['influencers', 'followers', 'collaboratorwith', 'group_members', 'associatedwith', 'similars'] and entry[1] in valid_artists:
-                        e = Entity(entry[1], 'artist')
+                        e = get_or_create_entity(entry[0], 'artist')
                     elif relation in ['themes', 'moods', 'styles']:
-                        e = Entity(entry[1], relation[:-1])
+                        e = get_or_create_entity(entry[0], relation[:-1])
                     elif relation in ['genre']:
-                        e = Entity(entry[1], relation)
+                        e = get_or_create_entity(entry[0], relation)
                     else:
                         continue
                     artist.add_relation(e, relation)
@@ -77,13 +99,14 @@ def match(tokens):
 def find_entity(artist_name, album_name):
     artist_tokens = artist_name.lower().replace("_", "").split()
     feasible_artists = match(artist_tokens)
+
     for artist in feasible_artists:
         for album in artist.related['albums']:
-            if album.name.lower().strip() == album_name.lower().strip():
+            if album_name.lower().strip() in get_entity_name(album.name):
                 return artist, album
 
     for artist in feasible_artists:
-        if artist.name.lower().strip() == artist_name.lower().strip():
+        if artist.name.lower().strip() == get_entity_name(artist_name):
             return artist, None
     return None, None
 
@@ -97,9 +120,9 @@ def load_logs(before=9999):
                 continue
             artist, album = track_table[f]
             if artist:
-                artist.add_relation(Entity('User', 'user'), 'listened')
+                artist.add_relation(get_or_create_entity('User', 'user'), 'listened')
             if album:
-                album.add_relation(Entity('User', 'user'), 'listened')
+                album.add_relation(get_or_create_entity('User', 'user'), 'listened')
             if artist and album:
                 print("%r %r is found" % (artist, album))
             elif artist:
@@ -120,12 +143,13 @@ def load_library(before=9999):
         artist, album = find_entity(entry['albumartist'], entry['album'])
         if artist:
             track_table[entry['file']] = (artist, album)
-            artist.add_relation(Entity('User', 'user'), 'bought')
+            artist.add_relation(get_or_create_entity('User', 'user'), 'bought')
             if album:
-                album.add_relation(Entity('User', 'user'), 'bought')
+                album.add_relation(get_or_create_entity('User', 'user'), 'bought')
                 print("%s, %s is found in %r %r" % (entry['albumartist'], entry['album'], artist, album))
             else:
                 print("%s is found in %r" % (entry['albumartist'], artist))
+            
 
 entity_ids = {}
 relation_ids = {}
