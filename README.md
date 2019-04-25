@@ -7,9 +7,7 @@ A knowledge base built on the top of [All Music Guide](https://www.allmusic.com)
 ## Key Features
 * This player is album-oriented. All the tracks in the MPD server are reorganized into albums. Compared with individual track, album is a much more structural and meaningful music unit for serious music lovers. 
 * Many MPD servers are built on low-power devices such as NAS or Raspberry Pi. To reduce the loading of these devices, all the loading are taken by the client side (i.e. this player). This design philosophy results a slim, mimimal, but somewhat slow player, but the server side benefits from stability, lower jitter, and better sound quailty. 
-* Psersonalized music recommendation based on the user's collection and playback log. A knowledge base built on the expert knowlegdge from All Music Guide is tightly integrated into this player. 
-
-Technical information about the music recommendation is available [here](https://github.com/hhhuang/mpd_player/blob/master/misc/paper.pdf) (submitted to the demo track of IJCAI 2019).
+* Psersonalized music recommendation based on the user's collection and playback log. A knowledge base built on the expert knowlegdge from All Music Guide is tightly integrated into this player. Technical information about the music recommendation is available [here](https://github.com/hhhuang/mpd_player/blob/master/misc/paper.pdf) (submitted to the demo track of IJCAI 2019).
 The slides are [here](https://github.com/hhhuang/mpd_player/blob/master/misc/slides.pdf).
 
 ## Environment Requirement
