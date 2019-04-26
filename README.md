@@ -15,10 +15,15 @@ The slides are [here](https://github.com/hhhuang/mpd_player/blob/master/misc/sli
 * Python3
 * Operating system: Windows/Mac/Linux and so on. The code has been verified on Windows 10 and Mac OS Mojave.
 * A collection of audio files that is manipulated by an MPD server. [More information of the setup of the MPD server](https://wiki.archlinux.org/index.php/Music_Player_Daemon). An ideal setting is comprised of a standalone music server running the MPD server like [Forked-Daapd](http://ejurgensen.github.io/forked-daapd/), a standalone music renderer like a Hi-Fi DAC/Stream Player that supports MPD, and this player installed on another powerful desktop/laptop in the same LAN. 
-* build the [Open Knowledge Embedding](https://github.com/thunlp/OpenKE) toolkit in the folder ```kb/OpenKE```. A C++ compiler is required to build OpenKE.
+* Build the [Open Knowledge Embedding](https://github.com/thunlp/OpenKE) toolkit in the folder ```kb/OpenKE```. A C++ compiler is required to build OpenKE.
   ```
   cd kb/OpenKE
   sh make.sh
+  ```
+  OpenKE is a submodule so you may need to checkout it manually if the folder is empty. 
+  ```
+  git submodule init
+  git submodule update --recursive
   ```
 
 ## Setup
