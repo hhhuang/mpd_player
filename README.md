@@ -4,7 +4,11 @@ This is an audiophile music player based on the [MPD](https://www.musicpd.org) p
 The player will suggest the relevant albums and artists to the user based the playback log. 
 A knowledge base built on the top of [All Music Guide](https://www.allmusic.com) is employed to peformance the recommendation as a task of knowledge base completion. 
 
-Technical information about the music recommendation is available [here](https://github.com/hhhuang/mpd_player/blob/master/misc/paper.pdf) (submitted to the demo track of IJCAI 2019).
+## Key Features
+* Friendly with a large number of albums. The player has been tested with a collection more than 2,000 CDs.
+* This player is album-oriented. All the tracks in the MPD server are reorganized into albums. Compared with individual tracks, album is a much more structural and meaningful unit for serious music lovers' critical listening. 
+* Many MPD servers and renderers are built on low-power devices such as NAS and Raspberry Pi. To reduce the loading of these devices, all the loading are taken by the controller side (i.e. this player). This design philosophy results a slim, mimimal, somewhat slow player, but both server/renderer sides benefit from stability, lower jitter, and better sound quailty. 
+* Psersonalized music recommendation based on the user's collection and playback log. A knowledge base built on the expert knowlegdge from All Music Guide is tightly integrated into this player. Technical information about the music recommendation is available [here](https://github.com/hhhuang/mpd_player/blob/master/misc/paper.pdf) (submitted to the demo track of IJCAI 2019).
 The slides are [here](https://github.com/hhhuang/mpd_player/blob/master/misc/slides.pdf).
 
 ## Environment Requirement
@@ -12,7 +16,7 @@ The slides are [here](https://github.com/hhhuang/mpd_player/blob/master/misc/sli
 * Operating system: Windows/Mac/Linux and so on. The code has been verified on Windows 10 and Mac OS Mojave.
 * A collection of audio files that is manipulated by an MPD server. [More information of the setup of the MPD server](https://wiki.archlinux.org/index.php/Music_Player_Daemon).   
 * For training yourself own personalized knowledge base, 
-  build the [Open Knowledge Embedding](https://github.com/thunlp/OpenKE) toolkit in the folder ```kb/OpenKE```. C++ is required to build OpenKE.
+  build the [Open Knowledge Embedding](https://github.com/thunlp/OpenKE) toolkit in the folder ```kb/OpenKE```. A C++ compiler is required to build OpenKE.
   ```
   cd kb/OpenKE
   sh make.sh
@@ -49,6 +53,9 @@ It takes some time depending on the size of your music collection.
 
 ## Recommendation
 Based on your music collection and your playback log, a personalized recommendation list of albums to purchase is predicted.
+The recommendation list takes a little time to render because the cover images are downloaded on the fly. 
 ![Recommendation](https://github.com/hhhuang/mpd_player/blob/master/misc/recommendation.png?raw=true)
 
-
+## Known Issues under Improvement
+* The procedure for cover image download will be performed in the background.
+* The recommendation list will be updated regularly according to the change of user's music collection and playback log.
