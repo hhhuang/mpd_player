@@ -104,7 +104,7 @@ class Library(object):
             print("Number of albums loaded: %d" % len(self.albums))"""
     
     def update(self):
-        data = self.client.listallinfo()
+        data = self.client.find({"any": ""}, "Album")
         with open(self.cache_path, "w") as fout:
             json.dump(data, fout)
         
@@ -151,6 +151,11 @@ class Library(object):
             if album.match(keywords):
                 albums.append(album)
         return albums
+        
+    def find(self):
+        albums = self.client.find({"any": ""}, "Album", 0, 10)
+        print(albums)
+        print(len(albums))
         
     
 class PlayQueue(object):
@@ -245,7 +250,7 @@ def show_album(album):
         print("%2d:%3d - %s %s" % (track['disc'], track['track'], track['title'], track['artist']))
 
 if __name__ == "__main__":
-    client = connect_server('localhost', 6600)
+    client = connect_server('192.168.11.235', 6601)
     music_lib = Library(client, update=False)
     pq = PlayQueue(client)
     player = Player(client)
@@ -290,6 +295,8 @@ if __name__ == "__main__":
             print(player.idle())
         elif cmd == 'volume':
             player.setvol((int(rows[1])))
+        elif cmd == 'find':
+            music_lib.find()
         else:
             print("Unknown command: %s" % cmd)
 
