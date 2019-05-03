@@ -2,7 +2,7 @@
 
 This is an audiophile music player based on the [MPD](https://www.musicpd.org) protocol. 
 The player will suggest the relevant albums and artists to the user based the playback log. 
-A knowledge base built on the top of [All Music Guide](https://www.allmusic.com) is employed to peformance the recommendation as a task of knowledge base completion. 
+A knowledge base built on the top of [All Music Guide](https://www.allmusic.com) is employed to perform the recommendation as a task of knowledge base completion. 
 
 ## Key Features
 * Friendly with a large number of albums. The player has been tested with a collection more than 2,000 CDs.
