@@ -46,6 +46,7 @@ def load_albums():
                 continue
             for album in data['albums']:
                 album['artist'] = data['name']
+                album['genres'] = [g for _, g in data['genre']]
                 if album['rating'].startswith('rating-allmusic-'):
                     stars = u"\u2605" * ((int(album['rating'][-1]) + 1) // 2)
                     if (int(album['rating'][-1]) + 1) % 2 == 1:

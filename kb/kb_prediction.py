@@ -121,16 +121,25 @@ def lcs(str1, str2):
                     table[(i, j)] = max(table[(i-1, j)], table[(i, j-1)])
     return float(table[(len(str1), len(str2))]) / min(len(str1), len(str2))
     
+def same_album(title1, artist1, title2, artist2):
+    if lcs(title1.lower(), title2.lower()) >= 0.85 and lcs(artist1.lower(), artist2.lower()) >= 0.85:
+        return True
+    return False
+
 def search_collection(collection, data):
     for album in collection:
-        if lcs(data["title"].lower(), album.title.lower()) >= 0.85 and lcs(data["artist"].lower(), album.artist.lower()) >= 0.85:
-            return True
-    return False
+        if same_album(data["title"], data["artist"], album.title, album.artist):
+            return album
+    return None
 
 def get_recommendation_list(collection, num_items):
     results = {"album": []}
+    if num_items <= 0:
+        return results
     albums = database.load_albums()
     for _, album_link in top_list("album"):
+        if len(results['album']) >= num_items:
+            break
         if album_link not in albums:
             print(album_link + " is not found")
             continue
@@ -139,8 +148,6 @@ def get_recommendation_list(collection, num_items):
             continue
         data['cover_path'] = database.get_cover_path(album_link, data['cover_link'])
         results['album'].append(data)
-        if len(results['album']) >= num_items:
-            break
     return results
 
 if __name__ == "__main__":
