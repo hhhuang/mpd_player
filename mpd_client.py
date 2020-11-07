@@ -7,6 +7,10 @@ import heapq
 from libs.collation import latin2ascii
 #from os import environ
 
+from kb import database as knowledge_base
+
+#album_kb = knowledge_base.load_albums()
+
 def connect_server(host='localhost', port=6600):
     client = musicpd.MPDClient()       # create client object
     client.connect(host, port)                   # use MPD_HOST/MPD_PORT if set else
@@ -47,6 +51,16 @@ class Album(object):
         self.last_modified = ""
         self.artist = ""
         self.keywords = ""
+        
+    def search_kb(self):
+        return []
+        global album_kb
+        for a in album_kb:
+            pass
+            
+    def get_metadata(self):
+        return []
+    
     
     def add(self, track):
         key = Album.get_album_key(track)
@@ -74,6 +88,7 @@ class Album(object):
         return True
                 
     def complete(self):
+        self.get_metadata()
         self.gen_keywords()
         self.sort_tracks()
     
@@ -109,8 +124,13 @@ class Library(object):
             json.dump(data, fout)
         
     def build(self):
-        with open(self.cache_path) as fin:
-            albums = self.build_albums(json.load(fin))
+        cached_albums = []
+        try:
+            with open(self.cache_path) as fin:
+                cached_albums = json.load(fin)        
+        except:
+            print("Cached file for albums is not found.")
+        albums = self.build_albums(cached_albums)
         with open(self.album_path, "w") as fout:
             json.dump(jsonpickle.encode(albums), fout)
         
@@ -133,7 +153,7 @@ class Library(object):
             album.complete()
             self.latest_albums.append((album.album_id, album.last_modified))
         self.latest_albums.sort(key=lambda x: x[1], reverse=True)
-        #print(self.latest_albums)
+        print(self.latest_albums)
         
     def get_album(self, album_id):
         return self.albums[self.album_lookup[album_id]]
@@ -250,7 +270,7 @@ def show_album(album):
         print("%2d:%3d - %s %s" % (track['disc'], track['track'], track['title'], track['artist']))
 
 if __name__ == "__main__":
-    client = connect_server('192.168.11.235', 6601)
+    client = connect_server('192.168.11.235', 6600)
     music_lib = Library(client, update=False)
     pq = PlayQueue(client)
     player = Player(client)

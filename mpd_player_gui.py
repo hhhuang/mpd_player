@@ -449,7 +449,7 @@ class App(QWidget):
         layout.addWidget(self.volume_slider)
         
         self.controlPanel = QGroupBox()    
-        self.controlPanel.setMaximumHeight(40)
+        self.controlPanel.setMaximumHeight(60)
         self.controlPanel.setLayout(layout)
 
     @pyqtSlot()
@@ -457,7 +457,10 @@ class App(QWidget):
         row = self.playlist.currentRow()
         songid = self.playlist.item(row, 2).data(Qt.UserRole)
         print(songid)
-        self.player.playid(songid)
+        try:
+            self.player.playid(songid)
+        except:
+            self.handle_error()
 
     @pyqtSlot()       
     def update_local_info(self):
@@ -491,6 +494,8 @@ class App(QWidget):
             self.playlist.setRangeSelected(QTableWidgetSelectionRange(0, 0, self.playlist.rowCount() - 1, self.playlist.columnCount() - 1), False)
             self.playlist.setRangeSelected(QTableWidgetSelectionRange(int(track['pos']), 0, int(track['pos']), self.playlist.columnCount() - 1), True)
             self.volume_slider.setValue(int(status['volume']))
+            self.volume_slider.setMinimum(0)            
+            self.volume_slider.setMaximum(100) 
             self.volume_slider.setToolTip("Volume: " + status['volume'])
         else:
             self.infobox.setText("")
@@ -509,12 +514,26 @@ class App(QWidget):
             
     @pyqtSlot()
     def play_on_click(self):
-        if self.playing:
-            self.setPlaying(False)
-            self.player.pause()
-        else:
-            self.setPlaying(True)
-            self.player.play()
+        try:
+            if self.playing:
+                self.setPlaying(False)
+                self.player.pause()
+            else:
+                self.setPlaying(True)
+                self.player.play()
+        except:
+            self.handle_error()
+            
+    def handle_error(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("Fail to connect the MPD player")
+        msg.setInformativeText("There are something wrong about the connection with the player. Click OK to reload the player.")
+        msg.setWindowTitle("Error")
+        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        msg.buttonClicked.connect(self.initMPD)
+        retval = msg.exec_()
+        print("value of pressed message box button:", retval)
 
     @pyqtSlot()
     def stop_on_click(self):
@@ -581,7 +600,7 @@ class App(QWidget):
             title.setData(Qt.UserRole, albums[i].album_id)
             self.albumTable.setItem(i, 0, title)
             self.albumTable.setItem(i, 1, TableItem(albums[i].artist))
-            self.albumTable.setItem(i, 2, TableItem(albums[i].last_modified[:10]))
+            self.albumTable.setItem(i, 4, TableItem(albums[i].last_modified[:10]))
         self.albumTable.move(0,0)
         
         self.sorted_order = Qt.DescendingOrder
@@ -601,7 +620,7 @@ class App(QWidget):
         
     def updateRecommendation(self, collection):
         table = self.recommendation
-        items = get_recommendation_list(collection, 120)["album"]
+        items = get_recommendation_list(collection, 0)["album"]
      
         table.setRowCount((len(items) + 2) // 3)
         for idx, data in enumerate(items):
@@ -627,12 +646,14 @@ class App(QWidget):
         # Create table
         self.albumTable = QTableWidget()
         self.albumTable.setRowCount(0)
-        self.albumTable.setColumnCount(3)
-        self.albumTable.setHorizontalHeaderLabels(["Title", "Aritst", "Last Modified"])
+        self.albumTable.setColumnCount(5)
+        self.albumTable.setHorizontalHeaderLabels(["Title", "Aritst", "Genre", "Rating", "Last Modified"])
         header = self.albumTable.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.Stretch)
         header.setSectionResizeMode(1, QHeaderView.Stretch)
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
         header.sectionClicked.connect(self.header_on_click)      
         
         row = self.albumTable.verticalHeader()
@@ -684,7 +705,10 @@ class App(QWidget):
             
     def play_selected(self):
         if not self.albumTable.selectedItems():
-            self.player.play()
+            try:
+                self.player.play()
+            except:
+                self.handle_error()
             return
         album_ids = set([item.data(Qt.UserRole) for item in self.albumTable.selectedItems() if item.column() == 0])
         print(album_ids)
