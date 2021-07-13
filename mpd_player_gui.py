@@ -87,7 +87,9 @@ class AlbumPopup(QDialog):
         grid.addWidget(QLabel(self.album.artist, self), 1, 1)
         grid.addWidget(QLabel("Last modified: ", self), 2, 0)
         grid.addWidget(QLabel(self.album.last_modified, self), 2, 1)
-    
+        grid.addWidget(QLabel("Path: ", self), 3, 0)
+        grid.addWidget(QLabel(str(os.path.dirname(self.album.tracks[0]['file']))), 3, 1) 
+   
         section = QGroupBox()
         section.setLayout(grid)
         return section
