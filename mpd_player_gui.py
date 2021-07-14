@@ -1,4 +1,5 @@
 import datetime
+from hashlib import sha512
 import json
 import os
 import sys
@@ -8,9 +9,30 @@ from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtCore import *
  
 from mpd_client import * 
-from libs.background_task import run_async, run_async_mutex, run_loop, remove_threads
+import mutagen
 
+from libs.background_task import run_async, run_async_mutex, run_loop, remove_threads
 from kb.kb_prediction import get_recommendation_list
+
+mpd_client = None
+
+def get_artwork(file):
+    #   All files in the same folder (album) share the same artwork.
+    filename = sha512(os.path.dirname(file).encode("utf8")).hexdigest() + ".jpg"
+    artwork_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artworks', filename)
+    #   Extract the embedded artwork from the file on the fly.
+    if not os.path.isfile(artwork_path):
+        global mpd_client
+        import musicpd
+        try:
+            data = mpd_client.readpicture(file)
+        except musicpd.CommandError:
+            print("The mpd server does not support this feature.")
+            return os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artworks', 'blank.jpg')
+        print(data)
+        with open(artwork_path, 'wb') as img:
+            img.write(data['binary'])
+    return artwork_path
 
 def createRecommendationGrid():
    # Create table
@@ -80,15 +102,26 @@ class AlbumPopup(QDialog):
         self.show()
         
     def createAlbumSection(self):
+        artwork_file = get_artwork(self.album.tracks[0]['file'])
+        print(artwork_file)
+        if artwork_file:
+            img = QPixmap(artwork_file)
+            artwork = QLabel(self)
+            artwork.setPixmap(img.scaled(140, 140, Qt.KeepAspectRatio))
+        else:
+            artwork = QLabel("No artwork", self)
+    
         grid = QGridLayout()
-        grid.addWidget(QLabel("Title: ", self), 0, 0)
-        grid.addWidget(QLabel(self.album.title, self), 0, 1)
-        grid.addWidget(QLabel("Artist: ", self), 1, 0)
-        grid.addWidget(QLabel(self.album.artist, self), 1, 1)
-        grid.addWidget(QLabel("Last modified: ", self), 2, 0)
-        grid.addWidget(QLabel(self.album.last_modified, self), 2, 1)
-        grid.addWidget(QLabel("Path: ", self), 3, 0)
-        grid.addWidget(QLabel(str(os.path.dirname(self.album.tracks[0]['file']))), 3, 1) 
+        #   Get artwork and show
+        grid.addWidget(artwork, 0, 0, 4, 1)
+        grid.addWidget(QLabel("Title: ", self), 0, 1)
+        grid.addWidget(QLabel(self.album.title, self), 0, 2, 1, 4)
+        grid.addWidget(QLabel("Artist: ", self), 1, 1)
+        grid.addWidget(QLabel(self.album.artist, self), 1, 2, 1, 4)
+        grid.addWidget(QLabel("Last modified: ", self), 2, 1)
+        grid.addWidget(QLabel(self.album.last_modified, self), 2, 2, 1, 4)
+        grid.addWidget(QLabel("Path: ", self), 3, 1)
+        grid.addWidget(QLabel(str(os.path.dirname(self.album.tracks[0]['file']))), 3, 2, 1, 4) 
    
         section = QGroupBox()
         section.setLayout(grid)
@@ -302,6 +335,8 @@ class App(QWidget):
         self.mpd_client_playqueue = connect_server(self.config['host'], self.config['port'])
         self.mpd_client_player = connect_server(self.config['host'], self.config['port'])
         self.mpd_client_monitor = connect_server(self.config['host'], self.config['port'])
+        global mpd_client
+        mpd_client = self.mpd_client_playqueue
     
     def initLibrary(self):
         self.mpd_mutex = QMutex()

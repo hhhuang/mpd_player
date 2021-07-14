@@ -1,4 +1,5 @@
-import mpd as musicpd
+#import mpd as musicpd
+import musicpd
 import json
 import jsonpickle
 import os.path
@@ -61,7 +62,6 @@ class Album(object):
     def get_metadata(self):
         return []
     
-    
     def add(self, track):
         key = Album.get_album_key(track)
         if not self.album_key:
@@ -111,7 +111,7 @@ class Library(object):
         self.client = client
         self.cache_path = "library.json"
         self.album_path = "albums.json"
-        if update:
+        if True or update:
             self.update()
         self.build()
         """with open(self.album_path) as fin:
@@ -130,6 +130,7 @@ class Library(object):
                 cached_albums = json.load(fin)        
         except:
             print("Cached file for albums is not found.")
+        print("building albums from json")
         albums = self.build_albums(cached_albums)
         with open(self.album_path, "w") as fout:
             json.dump(jsonpickle.encode(albums), fout)
@@ -217,7 +218,6 @@ class PlayQueue(object):
         
     def get_current_song(self):
         return self.client.currentsong()
-    
         
 class Player(object):
     def __init__(self, client):
@@ -257,7 +257,8 @@ class Player(object):
         self.client.playid(songid)
         
     def setvol(self, vol):
-        self.client.setvol(vol)
+        pass
+        #self.client.setvol(vol)        
     
 def show_list(albums):
     print("Number of albums: %d" % len(albums))
@@ -270,7 +271,7 @@ def show_album(album):
         print("%2d:%3d - %s %s" % (track['disc'], track['track'], track['title'], track['artist']))
 
 if __name__ == "__main__":
-    client = connect_server('192.168.11.235', 6600)
+    client = connect_server('192.168.11.235', 6601)
     music_lib = Library(client, update=False)
     pq = PlayQueue(client)
     player = Player(client)
