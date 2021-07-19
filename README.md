@@ -1,7 +1,7 @@
 # MPD Player with Expert Knowledge-based Music Recommendation
 
 This is an audiophile music player based on the [MPD](https://www.musicpd.org) protocol. 
-The player will suggest the relevant albums and artists to the user based the playback log. 
+The player will suggest the relevant albums and artists to the user based on their playback log. 
 A knowledge base built on the top of [All Music Guide](https://www.allmusic.com) is employed to perform the recommendation as a task of knowledge base completion. 
 
 ## Key Features
