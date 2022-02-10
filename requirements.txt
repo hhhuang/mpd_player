@@ -4,4 +4,4 @@ numpy==1.16.2
 requests==2.21.0
 PyQt5==5.12.1
 beautifulsoup4==4.7.1
-tensorflow==1.13.1
+tensorflow==2.5.3
