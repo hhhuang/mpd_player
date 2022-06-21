@@ -1,6 +1,6 @@
 jsonpickle==1.0
 python_mpd2==1.0.0
-numpy==1.16.2
+numpy==1.22.0
 requests==2.21.0
 PyQt5==5.12.1
 beautifulsoup4==4.7.1
